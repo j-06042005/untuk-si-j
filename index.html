@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bunga Cinta 🌸</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: radial-gradient(circle at center, purple 60%, indigo);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    canvas {
+      border-radius: 20px;
+      background-color: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 20px rgba(255, 192, 203, 0.5);
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 30px;
+      font-size: 18px;
+      font-family: "Comic Sans MS", cursive;
+      background: linear-gradient(45deg, deeppink, hotpink);
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 0 10px pink;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 20px white;
+    }
+
+    h1 {
+      font-family: "Comic Sans MS", cursive;
+      font-size: 48px;
+      color: pink;
+      text-shadow: 2px 2px 8px crimson;
+      opacity: 0;
+      transition: opacity 2s ease;
+      margin-top: 10px;
+    }
+
+    audio {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="flowerCanvas" width="600" height="500"></canvas>
+  <button id="growBtn">🌸 Tumbuhkan Bunga 🌸</button>
+  <h1 id="loveText"></h1>
+
+  <!-- Musik lembut -->
+  <audio id="bgMusic" loop>
+    <source src="https://cdn.pixabay.com/download/audio/2023/05/03/audio_96303db86d.mp3?filename=romantic-piano-14718.mp3" type="audio/mp3">
+  </audio>
+
+  <script>
+    const canvas = document.getElementById("flowerCanvas");
+    const ctx = canvas.getContext("2d");
+    const loveText = document.getElementById("loveText");
+    const btn = document.getElementById("growBtn");
+    const music = document.getElementById("bgMusic");
+
+    const flowers = [
+      { x: 300, y: 200, petal: "deeppink", center: "gold" },
+      { x: 240, y: 170, petal: "salmon", center: "yellow" },
+      { x: 360, y: 160, petal: "skyblue", center: "gold" },
+      { x: 280, y: 130, petal: "orchid", center: "gold" },
+      { x: 320, y: 120, petal: "lightpink", center: "gold" },
+    ];
+
+    function drawStem() {
+      ctx.beginPath();
+      ctx.strokeStyle = "brown";
+      ctx.lineWidth = 8;
+      ctx.moveTo(300, 480);
+      ctx.bezierCurveTo(320, 400, 280, 300, 300, 200);
+      ctx.stroke();
+
+      drawLeaf(250, 300, 1, -0.7);
+      drawLeaf(350, 280, 0.9, 0.5);
+    }
+
+    function drawLeaf(x, y, scale, angle) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      ctx.fillStyle = "greenyellow";
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.quadraticCurveTo(40 * scale, -40 * scale, 80 * scale, 0);
+      ctx.quadraticCurveTo(40 * scale, 40 * scale, 0, 0);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawPetal(x, y, radius, color, count, progress) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.fillStyle = color;
+      for (let i = 0; i < count * progress; i++) {
+        ctx.beginPath();
+        ctx.rotate((Math.PI * 2) / count);
+        ctx.moveTo(0, 0);
+        ctx.ellipse(0, radius / 2, radius, radius / 2, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    function drawFlower(x, y, petalColor, centerColor, progress) {
+      drawPetal(x, y, 30, petalColor, 6, progress);
+      if (progress >= 1) {
+        ctx.beginPath();
+        ctx.fillStyle = centerColor;
+        ctx.arc(x, y, 12, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function animateFlowers() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawStem();
+
+      let progress = 0;
+      const interval = setInterval(() => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawStem();
+
+        progress += 0.05;
+        flowers.forEach(f => drawFlower(f.x, f.y, f.petal, f.center, Math.min(progress, 1)));
+
+        if (progress >= 1) {
+          clearInterval(interval);
+          showLoveText();
+        }
+      }, 150);
+    }
+
+    function showLoveText() {
+      const text = "I Love You 💖";
+      let index = 0;
+      loveText.textContent = "";
+      loveText.style.opacity = 1;
+      const typing = setInterval(() => {
+        loveText.textContent += text[index];
+        index++;
+        if (index >= text.length) clearInterval(typing);
+      }, 150);
+    }
+
+    btn.addEventListener("click", () => {
+      loveText.style.opacity = 0;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      music.currentTime = 0;
+      music.play();
+      animateFlowers();
+    });
+
+    drawStem();
+  </script>
+</body>
+</html>
